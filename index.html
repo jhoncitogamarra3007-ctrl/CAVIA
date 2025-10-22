@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CAVIA - Aprende Cavineño</title>
+  <style>
+    /* Simple child-friendly styles */
+    :root{
+      --green:#2f9e44; --yellow:#ffd43b; --bg:#fff6e8; --accent:#ff6b6b;
+      --card:#fff; --shadow: 0 6px 18px rgba(0,0,0,0.12);
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    body{margin:0;background:linear-gradient(180deg,#fff5d6,#e9ffef);color:#1f2937;}
+    header{display:flex;align-items:center;justify-content:center;flex-direction:column;padding:32px 16px;text-align:center}
+    h1{font-size:56px;margin:8px 0;color:var(--green);letter-spacing:2px}
+    .slogan{font-size:18px;margin-bottom:12px;color:#2b2b2b}
+    .hero{max-width:1100px;width:100%;border-radius:20px;overflow:hidden;box-shadow:var(--shadow);background:linear-gradient(90deg,#ffdcb1,#fffecf)}
+    .hero-inner{display:flex;align-items:center;gap:18px;padding:18px}
+    .hero img{width:240px;border-radius:12px;}
+    .logo-center{flex:1;text-align:center}
+    .logo-center .title{font-size:72px;font-weight:800;color:#ffffff;text-shadow:0 6px 0 rgba(0,0,0,0.12);margin:0}
+    .logo-center .subtitle{background:#fff;padding:10px 18px;border-radius:12px;display:inline-block;margin-top:12px;font-weight:700;color:#3a3a3a}
+    nav{display:flex;justify-content:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+    .btn{background:#fff;border-radius:14px;padding:12px 18px;min-width:140px;box-shadow:var(--shadow);font-weight:700;cursor:pointer;border:none}
+    .btn--learn{background:#4dd0e1}
+    .btn--play{background:#ffb3c1}
+    .btn--listen{background:#9be564}
+    .btn--info{background:#b39ddb}
+    main{max-width:1000px;margin:28px auto;padding:0 16px}
+    section{margin-bottom:28px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+    .card{background:var(--card);padding:12px;border-radius:12px;box-shadow:var(--shadow);text-align:center}
+    .word-icon{font-size:48px;margin-bottom:6px}
+    .word-esp{font-weight:800;color:var(--green);font-size:20px}
+    .word-cav{color:#555;margin-top:6px;font-weight:700}
+    .small{font-size:14px;color:#555}
+    footer{text-align:center;padding:20px 10px;color:#333}
+    .play{margin-top:8px;padding:8px 12px;border-radius:10px;border:none;background:#ffd43b;cursor:pointer;font-weight:800}
+    /* memory game simple */
+    .mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .mem-card{background:#fff;border-radius:8px;padding:18px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;box-shadow:var(--shadow)}
+    @media (max-width:640px){h1{font-size:40px}.logo-center .title{font-size:40px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <div class="hero-inner">
+        <img src="assets/hero.png" alt="CAVIA hero">
+        <div class="logo-center">
+          <div class="title">CAVIA</div>
+          <div class="subtitle">Aprende Cavineño, da vida a nuestra cultura</div>
+        </div>
+      </div>
+    </div>
+    <nav>
+      <button class="btn btn--learn" onclick="scrollToSection('aprender')">📘 Aprender</button>
+      <button class="btn btn--play" onclick="scrollToSection('jugar')">🎮 Jugar</button>
+      <button class="btn btn--listen" onclick="scrollToSection('escuchar')">🔊 Escuchar</button>
+      <button class="btn btn--info" onclick="scrollToSection('sobre')">ℹ️ Sobre CAVIA</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="aprender">
+      <h2>Aprendamos palabras básicas</h2>
+      <p class="small">Siempre verás la palabra en <strong>Español</strong> y su traducción en <strong>Cavineño</strong>. Pulsa 🔊 para escuchar la pronunciación generada por voz IA.</p>
+      <div class="grid" id="vocabGrid"></div>
+    </section>
+
+    <section id="jugar">
+      <h2>Juguemos: Memoria de palabras</h2>
+      <p class="small">Haz clic en las tarjetas para encontrar pares (Español — Cavineño).</p>
+      <div id="memBoard" class="mem-grid"></div>
+      <div style="margin-top:10px"><button class="btn" onclick="startMemory()">Reiniciar juego</button></div>
+    </section>
+
+    <section id="escuchar">
+      <h2>Escuchar frases</h2>
+      <p class="small">Reproduce frases en Cavineño generadas por IA. Luego podrás reemplazarlas por audios reales en /audios/</p>
+      <div id="phrases"></div>
+    </section>
+
+    <section id="sobre">
+      <h2>Sobre CAVIA</h2>
+      <p>CAVIA nace para rescatar y enseñar la lengua Cavineña a niños de primaria mediante herramientas digitales. Proyecto inspirador de la comunidad de Santa Rosa del Yacuma.</p>
+      <p class="small">Archivos de audio reales pueden colocarse en la carpeta <code>/audios/</code> con el mismo nombre de cada entrada (por ejemplo <code>sol.mp3</code>).</p>
+    </section>
+  </main>
+
+  <footer>
+    © CAVIA — Proyecto educativo • Diseñado para escuelas y familias.
+  </footer>
+
+  <script>
+    // Vocabulary data (editable)
+    const palabras = [
+      { esp: "Sol", cav: "Jïna", icon: "☀️", id: "sol" },
+      { esp: "Agua", cav: "Dïna", icon: "💧", id: "agua" },
+      { esp: "Niño", cav: "Tsa", icon: "👦", id: "nino" },
+      { esp: "Pájaro", cav: "Jïbu", icon: "🐦", id: "pajaro" },
+      { esp: "Árbol", cav: "Wïya", icon: "🌳", id: "arbol" },
+      { esp: "Casa", cav: "Kawaya", icon: "🏠", id: "casa" },
+      { esp: "Madre", cav: "Nawa", icon: "👩", id: "madre" },
+      { esp: "Hombre", cav: "Juma", icon: "🧑‍🦱", id: "hombre" }
+    ];
+
+    const vocabGrid = document.getElementById('vocabGrid');
+    palabras.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="word-icon">${p.icon}</div>
+        <div class="word-esp">${p.esp}</div>
+        <div class="word-cav">${p.cav}</div>
+        <button class="play" onclick="playWord('${p.id}')">🔊 Escuchar</button>
+      `;
+      vocabGrid.appendChild(card);
+    });
+
+    // Play function: prefer file in /audios/{id}.mp3 else use Web Speech API (TTS)
+    function playWord(id){
+      const p = palabras.find(x=>x.id===id);
+      const audioPath = `audios/${id}.mp3`;
+      fetch(audioPath, {method:'HEAD'}).then(res=>{
+        if(res.ok){
+          const a = new Audio(audioPath); a.play();
+        } else {
+          speakText(p.cav);
+        }
+      }).catch(()=>{ speakText(p.cav); });
+    }
+
+    // Web Speech TTS (uses browser voices)
+    function speakText(text){
+      if('speechSynthesis' in window){
+        const ut = new SpeechSynthesisUtterance(text);
+        // try to select a warm Spanish-compatible voice if available
+        const voices = speechSynthesis.getVoices();
+        if(voices && voices.length){
+          const prefer = voices.find(v=>/es|spanish|span/gi.test(v.lang) || /female/i.test(v.name)) || voices[0];
+          ut.voice = prefer;
+        }
+        ut.rate = 0.95;
+        ut.pitch = 1;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(ut);
+      } else {
+        alert('Tu navegador no soporta síntesis de voz. Puedes agregar audios en /audios/');
+      }
+    }
+
+    // Memory game
+    let memoryPairs = [];
+    function startMemory(){
+      const board = document.getElementById('memBoard');
+      board.innerHTML = '';
+      // create pairs (esp and cav)
+      memoryPairs = [];
+      palabras.slice(0,8).forEach(p=>{
+        memoryPairs.push({type:'esp', text:p.esp, id:p.id});
+        memoryPairs.push({type:'cav', text:p.cav, id:p.id});
+      });
+      // shuffle
+      memoryPairs = memoryPairs.sort(()=>Math.random()-0.5);
+      memoryPairs.forEach((card,i)=>{
+        const d = document.createElement('div');
+        d.className='mem-card';
+        d.dataset.index = i;
+        d.dataset.revealed = 'false';
+        d.innerText = '❓';
+        d.addEventListener('click', ()=> revealCard(d, card));
+        board.appendChild(d);
+      });
+      window.currentlyRevealed = [];
+      window.matched = 0;
+    }
+
+    function revealCard(elem, card){
+      if(elem.dataset.revealed==='true') return;
+      elem.innerText = card.text;
+      elem.dataset.revealed = 'true';
+      window.currentlyRevealed.push({elem, card});
+      if(window.currentlyRevealed.length===2){
+        const [a,b] = window.currentlyRevealed;
+        if(a.card.id === b.card.id && a.card.type !== b.card.type){
+          // match
+          a.elem.style.background = '#d4ffd9';
+          b.elem.style.background = '#d4ffd9';
+          window.matched +=1;
+          if(window.matched === palabras.slice(0,8).length){ setTimeout(()=>alert('¡Felicidades! encontraste todas las parejas 🎉'),200); }
+        } else {
+          setTimeout(()=>{
+            a.elem.innerText='❓'; a.elem.dataset.revealed='false';
+            b.elem.innerText='❓'; b.elem.dataset.revealed='false';
+          },800);
+        }
+        window.currentlyRevealed = [];
+      }
+    }
+
+    // phrases for escuchar
+    const frases = [
+      {id:'fr1', esp:'Buenos días', cav:'Naimana jïna' },
+      {id:'fr2', esp:'¿Cómo estás?', cav:'Tsa nuku?' },
+      {id:'fr3', esp:'Gracias', cav:'Pïna' },
+    ];
+    const phrasesDiv = document.getElementById('phrases');
+    frases.forEach(f=>{
+      const row = document.createElement('div');
+      row.className='card';
+      row.style.display='flex';
+      row.style.justifyContent='space-between';
+      row.style.alignItems='center';
+      row.style.marginBottom='8px';
+      row.innerHTML = `<div><div style="font-weight:800">${f.esp}</div><div style="font-weight:700;color:#444">${f.cav}</div></div><div><button class="play" onclick="playPhrase('${f.id}')">🔊</button></div>`;
+      phrasesDiv.appendChild(row);
+      // reserve for audio files in /audios/{id}.mp3
+    });
+
+    function playPhrase(id){
+      const f = frases.find(x=>x.id===id);
+      const audioPath = `audios/${id}.mp3`;
+      fetch(audioPath,{method:'HEAD'}).then(res=>{
+        if(res.ok){
+          new Audio(audioPath).play();
+        } else {
+          speakText(f.cav);
+        }
+      }).catch(()=>speakText(f.cav));
+    }
+
+    // Utilities
+    function scrollToSection(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
+    window.addEventListener('load', ()=>{
+      // warm up voices on some browsers
+      if(window.speechSynthesis && speechSynthesis.getVoices().length===0){
+        speechSynthesis.addEventListener('voiceschanged', ()=>{});
+      }
+      startMemory();
+    });
+  </script>
+</body>
+</html>
